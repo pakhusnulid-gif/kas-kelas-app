@@ -292,6 +292,10 @@ h1, h2, h3, p, dl, dd { margin: 0; }
 .card .row-actions + .row-actions { margin-top: 8px; }
 .chk { display: flex; align-items: center; gap: 8px; font-size: 12.5px; color: var(--muted); margin: 2px 0 10px; }
 .chk input { width: 16px; height: 16px; accent-color: var(--brand); }
+.install-sheet .steps { margin: 0 0 12px; padding-left: 20px; font-size: 13.5px; }
+.install-sheet .steps li { margin-bottom: 6px; }
+.install-sheet .btn.wide { margin-top: 8px; }
+
 /* ---------- report ---------- */
 .report {
   background: var(--surface-2);

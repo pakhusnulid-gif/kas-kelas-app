@@ -63,6 +63,80 @@
     }
   }
 
+  /* ---------- pasang PWA ---------- */
+  const INSTALL_KEY = 'kaskelas.install';
+  let installEvt = null;
+  let installShown = false;
+
+  const isStandalone = () =>
+    window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+
+  // Urutan penting: browser dalam aplikasi lebih dulu, lalu iPadOS yang menyamar jadi Mac.
+  function installKind() {
+    const ua = navigator.userAgent;
+    if (/FBAN|FBAV|Instagram|Line\/|WhatsApp/i.test(ua)) return 'inapp';
+    if (/iPhone|iPad|iPod/i.test(ua)) return 'ios';
+    if (/Macintosh/i.test(ua) && navigator.maxTouchPoints > 1) return 'ios';
+    if (/Android/i.test(ua)) return 'android';
+    return 'desktop';
+  }
+
+  function installFlag() {
+    try { return localStorage.getItem(INSTALL_KEY); } catch (e) { return null; }
+  }
+  const installOff = () => installFlag() === 'dismissed';
+  const installDone = () => isStandalone() || installFlag() === 'installed';
+  function markInstall(v) {
+    try { localStorage.setItem(INSTALL_KEY, v); } catch (e) {}
+  }
+
+  function scheduleInstall() {
+    if (installShown || isStandalone() || installOff()) return;
+    if (location.protocol === 'file:') return;
+    if (S.get().meta.pin && !state.unlocked) return;
+    if (state.tab !== 'home' || state.dueId) return;
+    if ($('#sheetRoot').innerHTML) return;
+    installShown = true;
+    setTimeout(() => {
+      if (state.tab !== 'home' || state.dueId || $('#sheetRoot').innerHTML) { installShown = false; return; }
+      openInstall();
+    }, 1500);
+  }
+
+  function installSteps() {
+    const kind = installKind();
+    if (kind === 'ios') {
+      return `<ol class="steps">
+        <li>Buka aplikasi ini di <b>Safari</b>.</li>
+        <li>Ketuk ikon <b>Bagikan</b> di bawah layar.</li>
+        <li>Pilih <b>Tambahkan ke Layar Utama</b>, lalu <b>Tambah</b>.</li>
+      </ol>`;
+    }
+    if (kind === 'inapp') {
+      return `<p class="muted">Browser di dalam aplikasi tidak bisa memasang. Salin link ini, lalu buka di Chrome atau Safari.</p>
+        <button class="btn soft wide" data-act="install-copy">Salin link</button>`;
+    }
+    if (installEvt) {
+      return `<button class="btn primary wide" data-act="install-go">Pasang sekarang</button>`;
+    }
+    return `<ol class="steps">
+      <li>Buka menu browser, biasanya ikon titik tiga.</li>
+      <li>Pilih <b>Instal aplikasi</b> atau <b>Tambahkan ke layar utama</b>.</li>
+    </ol>`;
+  }
+
+  function openInstall() {
+    openSheet(`
+      <div class="sheet-head">
+        <h2>Pasang di HP</h2>
+        <button class="icon-btn" data-act="install-close" aria-label="Tutup">✕</button>
+      </div>
+      <p class="muted">Buka lebih cepat dan tetap bisa dipakai tanpa internet.</p>
+      ${installSteps()}
+      <button class="btn wide" data-act="install-close">Nanti saja</button>
+    `, 'install-sheet');
+  }
+
   /* ---------- shell ---------- */
   function render() {
     const db = S.get();
@@ -91,6 +165,7 @@
       $('#topbar').innerHTML = topbar('Atur', 'Data, anggota & laporan');
       $('#view').innerHTML = aturView();
     }
+    scheduleInstall();
   }
 
   function topbar(title, sub, back) {
@@ -285,6 +360,14 @@
     </form>
 
     <div class="card">
+      <div class="card-head"><b>Aplikasi</b></div>
+      <p class="muted">Buka tanpa browser dan tetap jalan tanpa internet.</p>
+      ${installDone()
+        ? '<p class="ok-box">Sudah terpasang di HP ini.</p>'
+        : '<button class="btn soft wide" data-act="install-open">Pasang di HP</button>'}
+    </div>
+
+    <div class="card">
       <div class="card-head"><b>Anggota (${db.members.length})</b></div>
       <form class="inline-form" id="memberForm">
         <input name="nama" placeholder="Nama anggota" aria-label="Nama anggota" autocomplete="off">
@@ -379,7 +462,8 @@
       if (e.target.classList.contains('overlay')) closeSheet();
     });
   }
-  function closeSheet() {
+  function closeSheet(keepInstall) {
+    if (!keepInstall && $('#sheetRoot').querySelector('.install-sheet')) markInstall('dismissed');
     $('#sheetRoot').innerHTML = '';
     document.body.classList.remove('locked-scroll');
     state.editId = null;
@@ -470,6 +554,24 @@
       }
 
       case 'sheet-close': closeSheet(); break;
+
+      case 'install-open': openInstall(); break;
+      case 'install-close': closeSheet(); break;
+      case 'install-copy': copy(location.href, 'Link disalin'); break;
+      case 'install-go':
+        if (!installEvt) break;
+        try { installEvt.prompt(); } catch (e) { installEvt = null; break; }
+        installEvt.userChoice.then(res => {
+          installEvt = null;
+          if (res.outcome === 'accepted') {
+            markInstall('installed');
+            closeSheet(true);
+            render();
+          } else {
+            closeSheet(); // menolak dialog browser tetap dihitung "jangan tanya lagi"
+          }
+        });
+        break;
 
       case 'txn-edit': {
         const id = el.dataset.id;
@@ -757,6 +859,15 @@
 
   /* ---------- boot ---------- */
   S.load();
+  window.addEventListener('beforeinstallprompt', e => {
+    e.preventDefault();
+    installEvt = e;
+  });
+  window.addEventListener('appinstalled', () => {
+    markInstall('installed');
+    render();
+    toast('Aplikasi terpasang');
+  });
   render();
   if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
     window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));

@@ -78,6 +78,16 @@ Lalu buka `http://localhost:8123`. Di HP, buka lewat jaringan lokal
 (`http://IP-KOMPUTER:8123`) atau deploy ke Netlify/GitHub Pages supaya bisa
 "Tambahkan ke layar utama".
 
+## Pasang di HP
+
+Buka https://kas-kelas-app.netlify.app di HP.
+
+- **Android (Chrome/Edge):** ketuk **Pasang di HP** saat ajakan muncul, atau menu titik tiga > **Instal aplikasi**.
+- **iPhone/iPad (Safari):** ketuk **Bagikan** > **Tambahkan ke Layar Utama** > **Tambah**.
+- **Browser dalam aplikasi** (WhatsApp, Instagram): salin link dulu, buka di Chrome atau Safari.
+
+Ajakan otomatis muncul sekali dan bisa ditutup. Tombol **Atur > Aplikasi > Pasang di HP** tetap tersedia kapan saja.
+
 ## Penting soal data
 
 Data hanya ada di browser HP yang dipakai. Kalau cache dibersihkan atau ganti HP,
