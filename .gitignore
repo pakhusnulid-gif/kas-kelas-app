@@ -8,6 +8,10 @@ dist/
 # Local test harnesses
 __probe.html
 __test.html
+__video.html
+
+# Konten video (aset lokal, bukan bagian aplikasi)
+video-tiktok/
 
 # OS / editor noise
 .DS_Store
