@@ -1,0 +1,16 @@
+# Internal agent rules & credentials. NEVER push.
+.agents/
+
+# Local deploy staging and Netlify CLI state
+dist/
+.netlify/
+
+# Local test harnesses
+__probe.html
+__test.html
+
+# OS / editor noise
+.DS_Store
+Thumbs.db
+desktop.ini
+*.log
