@@ -40,6 +40,10 @@ assert.strictEqual(S.balance(), 120000, 'hapus anggota membatalkan iurannya');
 
 assert.throws(() => S.importJSON('{"foo":1}'), /Format/);
 
+S.get().meta.pin = '1234';
+assert.ok(S.exportJSON().includes('1234'), 'backup bawaan menyertakan PIN');
+assert.ok(!S.exportJSON(false).includes('1234'), 'backup tanpa PIN tidak membocorkan PIN');
+
 const json = S.exportJSON();
 S.reset();
 assert.strictEqual(S.balance(), 0);

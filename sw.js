@@ -1,6 +1,6 @@
 /* Kas Kelas - service worker (offline) */
 // shortcut: cache-first tanpa pembaruan otomatis. Naikkan CACHE setiap kali file diubah.
-const CACHE = 'kas-kelas-v3';
+const CACHE = 'kas-kelas-v4';
 const ASSETS = [
   './',
   './index.html',

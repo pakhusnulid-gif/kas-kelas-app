@@ -30,7 +30,7 @@ Atur → **Isi contoh** memuat 6 anggota, 3 transaksi, dan 1 iuran.
 - **Cek uang fisik** → deteksi selisih antara catatan dan uang tunai.
 - Laporan bulanan (masuk, keluar, per kategori, status iuran) siap dibagikan.
 - PIN opsional untuk membuka aplikasi.
-- Backup/restore `.json`.
+- Backup/restore `.json`, dengan opsi menyertakan atau mengosongkan PIN.
 
 ## Struktur
 

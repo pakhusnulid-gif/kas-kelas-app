@@ -252,7 +252,10 @@
   }
 
   /* ---------- backup ---------- */
-  function exportJSON() { return JSON.stringify(db, null, 2); }
+  function exportJSON(includePin = true) {
+    const out = includePin || !db.meta.pin ? db : { ...db, meta: { ...db.meta, pin: '' } };
+    return JSON.stringify(out, null, 2);
+  }
 
   function importJSON(text) {
     const data = JSON.parse(text);

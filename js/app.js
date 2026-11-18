@@ -315,6 +315,7 @@
         <button class="btn soft" data-act="import">Pulihkan</button>
       </div>
       <input type="file" id="importFile" accept="application/json,.json" hidden>
+      <label class="chk"><input type="checkbox" id="pinInBackup"> Sertakan PIN di file backup</label>
       <div class="row-actions">
         <button class="btn soft" data-act="seed">Isi contoh</button>
         <button class="btn danger-soft" data-act="reset">Hapus semua</button>
@@ -612,7 +613,8 @@
 
       case 'export': {
         const db = S.get();
-        const blob = new Blob([S.exportJSON()], { type: 'application/json' });
+        const pinBox = $('#pinInBackup');
+        const blob = new Blob([S.exportJSON(!!(pinBox && pinBox.checked))], { type: 'application/json' });
         const a = document.createElement('a');
         a.href = URL.createObjectURL(blob);
         a.download = `kas-${(db.meta.kelas || 'kelas').replace(/\s+/g, '-').toLowerCase()}-${S.today()}.json`;
@@ -666,6 +668,7 @@
       const file = e.target.files[0];
       const fr = new FileReader();
       fr.onload = () => {
+        if (!confirm(`Pulihkan data dari "${file.name}"?\n\nSemua data saat ini akan diganti dan tidak bisa dikembalikan.`)) return;
         try {
           S.importJSON(String(fr.result));
           state.unlocked = true;
